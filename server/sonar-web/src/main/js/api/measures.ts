@@ -23,14 +23,13 @@ import { Measure, MeasurePeriod } from '../helpers/measures';
 import { Metric } from '../app/types';
 import { Period } from '../helpers/periods';
 
-export function getMeasures(
-  componentKey: string,
-  metrics: string[],
-  branch?: string
-): Promise<{ metric: string; value?: string }[]> {
-  const url = '/api/measures/component';
-  const data = { componentKey, metricKeys: metrics.join(','), branch };
-  return getJSON(url, data).then(r => r.component.measures, throwGlobalError);
+export function getMeasures(data: {
+  componentKey: string;
+  metricKeys: string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<{ metric: string; value?: string }[]> {
+  return getJSON('/api/measures/component', data).then(r => r.component.measures, throwGlobalError);
 }
 
 interface MeasureComponent {

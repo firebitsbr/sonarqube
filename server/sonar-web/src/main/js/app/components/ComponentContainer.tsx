@@ -84,7 +84,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   });
 
   fetchComponent(props: Props) {
-    const { branch, id } = props.location.query;
+    const { branch, id: key } = props.location.query;
     this.setState({ loading: true });
 
     const onError = (error: any) => {
@@ -97,24 +97,24 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       }
     };
 
-    Promise.all([getComponentNavigation(id, branch), getComponentData(id, branch)]).then(
-      ([nav, data]) => {
-        const component = this.addQualifier({ ...nav, ...data });
+    Promise.all([
+      getComponentNavigation({ componentKey: key, branch }),
+      getComponentData({ component: key, branch })
+    ]).then(([nav, data]) => {
+      const component = this.addQualifier({ ...nav, ...data });
 
-        if (this.context.organizationsEnabled) {
-          this.props.fetchOrganizations([component.organization]);
+      if (this.context.organizationsEnabled) {
+        this.props.fetchOrganizations([component.organization]);
+      }
+
+      this.fetchBranches(component).then(branches => {
+        if (this.mounted) {
+          this.setState({ loading: false, branches, component });
         }
+      }, onError);
 
-        this.fetchBranches(component).then(branches => {
-          if (this.mounted) {
-            this.setState({ loading: false, branches, component });
-          }
-        }, onError);
-
-        this.fetchStatus(component);
-      },
-      onError
-    );
+      this.fetchStatus(component);
+    }, onError);
   }
 
   fetchBranches = (component: Component) => {

@@ -84,7 +84,7 @@ export default class Breadcrumbs extends React.PureComponent {
       }
       return;
     }
-    getBreadcrumbs(component.key, branch).then(breadcrumbs => {
+    getBreadcrumbs({ component: component.key, branch }).then(breadcrumbs => {
       if (this.mounted) {
         this.setState({ breadcrumbs });
       }

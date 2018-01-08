@@ -20,13 +20,8 @@
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON } from '../helpers/request';
 
-export interface GetTestsParameters {
-  branch?: string;
-  testFileKey: string;
-}
-
-export function getTests(parameters: GetTestsParameters) {
-  return getJSON('/api/tests/list', parameters).catch(throwGlobalError);
+export function getTests(data: { branch?: string; pullRequest?: string; testFileKey: string }) {
+  return getJSON('/api/tests/list', data).catch(throwGlobalError);
 }
 
 export interface GetCoveredFilesParameters {

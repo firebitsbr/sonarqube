@@ -38,26 +38,32 @@ interface TimeMachineResponse {
   paging: Paging;
 }
 
-export function getTimeMachineData(
-  component: string,
-  metrics: string[],
-  other?: { branch?: string; p?: number; ps?: number; from?: string; to?: string }
-): Promise<TimeMachineResponse> {
-  return getJSON('/api/measures/search_history', {
-    component,
-    metrics: metrics.join(),
-    ps: 1000,
-    ...other
-  }).catch(throwGlobalError);
+export function getTimeMachineData(data: {
+  branch?: string;
+  component: string;
+  from?: string;
+  metrics: string;
+  p?: number;
+  ps?: number;
+  pullRequest?: string;
+  to?: string;
+}): Promise<TimeMachineResponse> {
+  return getJSON('/api/measures/search_history', data).catch(throwGlobalError);
 }
 
 export function getAllTimeMachineData(
-  component: string,
-  metrics: Array<string>,
-  other?: { branch?: string; p?: number; from?: string; to?: string },
+  data: {
+    component: string;
+    metrics: string;
+    branch?: string;
+    from?: string;
+    p?: number;
+    pullRequest?: string;
+    to?: string;
+  },
   prev?: TimeMachineResponse
 ): Promise<TimeMachineResponse> {
-  return getTimeMachineData(component, metrics, { ...other, ps: 1000 }).then(r => {
+  return getTimeMachineData({ ...data, ps: 100 }).then(r => {
     const result = prev
       ? {
           measures: prev.measures.map((measure, idx) => ({
@@ -71,11 +77,6 @@ export function getAllTimeMachineData(
     if (result.paging.pageIndex * result.paging.pageSize >= result.paging.total) {
       return result;
     }
-    return getAllTimeMachineData(
-      component,
-      metrics,
-      { ...other, p: result.paging.pageIndex + 1 },
-      result
-    );
+    return getAllTimeMachineData({ ...data, p: result.paging.pageIndex + 1 }, result);
   });
 }

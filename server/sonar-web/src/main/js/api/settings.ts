@@ -22,8 +22,8 @@ import { getJSON, RequestData, post, postJSON } from '../helpers/request';
 import { TYPE_PROPERTY_SET } from '../apps/settings/constants';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export function getDefinitions(component: string | null, branch?: string): Promise<any> {
-  return getJSON('/api/settings/list_definitions', { branch, component }).then(r => r.definitions);
+export function getDefinitions(component?: string): Promise<any> {
+  return getJSON('/api/settings/list_definitions', { component }).then(r => r.definitions);
 }
 
 export interface SettingValue {
@@ -35,22 +35,18 @@ export interface SettingValue {
   values?: string[];
 }
 
-export function getValues(
-  keys: string,
-  component?: string,
-  branch?: string
-): Promise<SettingValue[]> {
-  return getJSON('/api/settings/values', { keys, component, branch }).then(r => r.settings);
+export function getValues(data: {
+  keys: string;
+  component?: string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<SettingValue[]> {
+  return getJSON('/api/settings/values', data).then(r => r.settings);
 }
 
-export function setSettingValue(
-  definition: any,
-  value: any,
-  component?: string,
-  branch?: string
-): Promise<void> {
+export function setSettingValue(definition: any, value: any, component?: string): Promise<void> {
   const { key } = definition;
-  const data: RequestData = { key, component, branch };
+  const data: RequestData = { key, component };
 
   if (definition.multiValues) {
     data.values = value;
@@ -65,17 +61,23 @@ export function setSettingValue(
   return post('/api/settings/set', data);
 }
 
-export function setSimpleSettingValue(parameters: {
+export function setSimpleSettingValue(data: {
   branch?: string;
   component?: string;
   value: string;
   key: string;
+  pullRequest?: string;
 }): Promise<void | Response> {
-  return post('/api/settings/set', parameters).catch(throwGlobalError);
+  return post('/api/settings/set', data).catch(throwGlobalError);
 }
 
-export function resetSettingValue(key: string, component?: string, branch?: string): Promise<void> {
-  return post('/api/settings/reset', { keys: key, component, branch });
+export function resetSettingValue(data: {
+  keys: string;
+  component?: string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<void> {
+  return post('/api/settings/reset', data);
 }
 
 export function sendTestEmail(to: string, subject: string, message: string): Promise<void> {

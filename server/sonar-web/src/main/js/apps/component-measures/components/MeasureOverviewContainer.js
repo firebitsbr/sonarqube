@@ -88,7 +88,7 @@ export default class MeasureOverviewContainer extends React.PureComponent {
       return;
     }
     this.updateLoading({ component: true });
-    getComponentShow(selected, branch).then(
+    getComponentShow({ component: selected, branch }).then(
       ({ component }) => {
         if (this.mounted) {
           this.setState({ component });

@@ -57,7 +57,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   fetchPurgeSetting() {
     this.setState({ loading: true });
-    getValues(BRANCH_LIFETIME_SETTING).then(
+    getValues({ keys: BRANCH_LIFETIME_SETTING }).then(
       settings => {
         if (this.mounted) {
           this.setState({

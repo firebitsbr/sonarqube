@@ -24,8 +24,12 @@ export function getGlobalNavigation(): Promise<any> {
   return getJSON('/api/navigation/global');
 }
 
-export function getComponentNavigation(componentKey: string, branch?: string): Promise<any> {
-  return getJSON('/api/navigation/component', { componentKey, branch }).catch(throwGlobalError);
+export function getComponentNavigation(data: {
+  componentKey: string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<any> {
+  return getJSON('/api/navigation/component', data).catch(throwGlobalError);
 }
 
 export function getSettingsNavigation(): Promise<any> {

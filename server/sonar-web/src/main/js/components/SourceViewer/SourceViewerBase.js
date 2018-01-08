@@ -119,8 +119,8 @@ const LINES = 500;
 
 function loadComponent(key /*: string */, branch /*: string | void */) /*: Promise<*> */ {
   return Promise.all([
-    getComponentForSourceViewer(key, branch),
-    getComponentData(key, branch)
+    getComponentForSourceViewer({ component: key, branch }),
+    getComponentData({ component: key, branch })
   ]).then(([component, data]) => ({
     ...component,
     leakPeriodDate: data.leakPeriodDate && parseDate(data.leakPeriodDate)
@@ -133,7 +133,7 @@ function loadSources(
   to /*: ?number */,
   branch /*: string | void */
 ) /*: Promise<Array<*>> */ {
-  return getSources(key, from, to, branch);
+  return getSources({ key, from, to, branch });
 }
 
 export default class SourceViewerBase extends React.PureComponent {
@@ -444,7 +444,7 @@ export default class SourceViewerBase extends React.PureComponent {
   };
 
   loadDuplications = (line /*: SourceLine */) => {
-    getDuplications(this.props.component, this.props.branch).then(r => {
+    getDuplications({ key: this.props.component, branch: this.props.branch }).then(r => {
       if (this.mounted) {
         this.setState(
           {
@@ -474,7 +474,11 @@ export default class SourceViewerBase extends React.PureComponent {
   };
 
   handleCoverageClick = (line /*: SourceLine */, element /*: HTMLElement */) => {
-    getTests(this.props.component, line.line, this.props.branch).then(tests => {
+    getTests({
+      sourceFileKey: this.props.component,
+      sourceFileLineNumber: line.line,
+      branch: this.props.branch
+    }).then(tests => {
       const popup = new CoveragePopupView({
         line,
         tests,

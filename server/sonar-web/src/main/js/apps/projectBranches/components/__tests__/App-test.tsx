@@ -48,5 +48,7 @@ it('renders sorted list of branches', () => {
 
 it('fetches branch life time setting on mount', () => {
   mount(<App branches={[]} component={{ key: 'foo' }} onBranchesChange={jest.fn()} />);
-  expect(getValues).toBeCalledWith('sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches');
+  expect(getValues).toBeCalledWith({
+    keys: 'sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches'
+  });
 });

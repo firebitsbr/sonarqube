@@ -117,12 +117,12 @@ export function getComponentLeaves(
   return getComponentTree('leaves', componentKey, metrics, additional);
 }
 
-export function getComponent(
-  componentKey: string,
-  metrics: string[] = [],
-  branch?: string
-): Promise<any> {
-  const data = { branch, componentKey, metricKeys: metrics.join(',') };
+export function getComponent(data: {
+  componentKey: string;
+  metricKeys: string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<any> {
   return getJSON('/api/measures/component', data).then(r => r.component);
 }
 
@@ -130,23 +130,35 @@ export function getTree(component: string, options: RequestData = {}): Promise<a
   return getJSON('/api/components/tree', { ...options, component });
 }
 
-export function getComponentShow(component: string, branch?: string): Promise<any> {
-  return getJSON('/api/components/show', { component, branch });
+export function getComponentShow(data: {
+  component: string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<any> {
+  return getJSON('/api/components/show', data);
 }
 
 export function getParents(component: string): Promise<any> {
-  return getComponentShow(component).then(r => r.ancestors);
+  return getComponentShow({ component }).then(r => r.ancestors);
 }
 
-export function getBreadcrumbs(component: string, branch?: string): Promise<any> {
-  return getComponentShow(component, branch).then(r => {
+export function getBreadcrumbs(data: {
+  component: string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<any> {
+  return getComponentShow(data).then(r => {
     const reversedAncestors = [...r.ancestors].reverse();
     return [...reversedAncestors, r.component];
   });
 }
 
-export function getComponentData(component: string, branch?: string): Promise<any> {
-  return getComponentShow(component, branch).then(r => r.component);
+export function getComponentData(data: {
+  component: string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<any> {
+  return getComponentShow(data).then(r => r.component);
 }
 
 export function getMyProjects(data: RequestData): Promise<any> {
@@ -246,31 +258,37 @@ export function getSuggestions(
   return getJSON('/api/components/suggestions', data);
 }
 
-export function getComponentForSourceViewer(component: string, branch?: string): Promise<any> {
-  return getJSON('/api/components/app', { component, branch });
+export function getComponentForSourceViewer(data: {
+  component: string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<any> {
+  return getJSON('/api/components/app', data);
 }
 
-export function getSources(
-  component: string,
-  from?: number,
-  to?: number,
-  branch?: string
-): Promise<any> {
-  const data: RequestData = { key: component, branch };
-  if (from) {
-    Object.assign(data, { from });
-  }
-  if (to) {
-    Object.assign(data, { to });
-  }
+export function getSources(data: {
+  key: string;
+  from?: number;
+  to?: number;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<any> {
   return getJSON('/api/sources/lines', data).then(r => r.sources);
 }
 
-export function getDuplications(component: string, branch?: string): Promise<any> {
-  return getJSON('/api/duplications/show', { key: component, branch });
+export function getDuplications(data: {
+  key: string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<any> {
+  return getJSON('/api/duplications/show', data);
 }
 
-export function getTests(component: string, line: number | string, branch?: string): Promise<any> {
-  const data = { sourceFileKey: component, sourceFileLineNumber: line, branch };
+export function getTests(data: {
+  sourceFileKey: string;
+  sourceFileLineNumber: number | string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<any> {
   return getJSON('/api/tests/list', data).then(r => r.tests);
 }

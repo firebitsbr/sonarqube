@@ -144,7 +144,11 @@ export default ModalView.extend({
         .filter(metric => metric.type !== 'DATA' && !metric.hidden)
         .map(metric => metric.key);
 
-      return getMeasures(this.options.component.key, metricsToRequest, this.options.branch).then(
+      return getMeasures({
+        componentKey: this.options.component.key,
+        metricKeys: metricsToRequest.join(),
+        branch: this.options.branch
+      }).then(
         measures => {
           let nextMeasures = this.options.component.measures || {};
           measures.forEach(measure => {

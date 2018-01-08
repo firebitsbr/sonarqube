@@ -79,14 +79,15 @@ export default class SettingForm extends React.PureComponent<Props, State> {
     event.preventDefault();
     event.currentTarget.blur();
     this.setState({ submitting: true });
-    resetSettingValue(this.props.setting.key, this.props.project, this.props.branch).then(
-      this.props.onChange,
-      () => {
-        if (this.mounted) {
-          this.setState({ submitting: false });
-        }
+    resetSettingValue({
+      keys: this.props.setting.key,
+      component: this.props.project,
+      branch: this.props.branch
+    }).then(this.props.onChange, () => {
+      if (this.mounted) {
+        this.setState({ submitting: false });
       }
-    );
+    });
   };
 
   handleCancelClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {

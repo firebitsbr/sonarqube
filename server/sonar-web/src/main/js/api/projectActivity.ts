@@ -40,6 +40,7 @@ export function getProjectActivity(data: {
   category?: string;
   p?: number;
   ps?: number;
+  pullRequest?: string;
 }): Promise<{ analyses: Analysis[]; paging: Paging }> {
   return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
 }

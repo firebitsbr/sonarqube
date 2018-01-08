@@ -141,7 +141,7 @@ function retrieveComponentBase(componentKey: string, isPortfolio: boolean, branc
 
   const metrics = getMetrics(isPortfolio);
 
-  return getComponent(componentKey, metrics, branch).then(component => {
+  return getComponent({ componentKey, metricKeys: metrics.join(), branch }).then(component => {
     addComponent(component);
     return component;
   });
@@ -174,19 +174,16 @@ export function retrieveComponentChildren(
     });
 }
 
-function retrieveComponentBreadcrumbs(
-  componentKey: string,
-  branch?: string
-): Promise<Breadcrumb[]> {
-  const existing = getComponentBreadcrumbs(componentKey);
+function retrieveComponentBreadcrumbs(component: string, branch?: string): Promise<Breadcrumb[]> {
+  const existing = getComponentBreadcrumbs(component);
   if (existing) {
     return Promise.resolve(existing);
   }
 
-  return getBreadcrumbs(componentKey, branch)
+  return getBreadcrumbs({ component, branch })
     .then(skipRootDir)
     .then(breadcrumbs => {
-      addComponentBreadcrumbs(componentKey, breadcrumbs);
+      addComponentBreadcrumbs(component, breadcrumbs);
       return breadcrumbs;
     });
 }

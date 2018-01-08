@@ -124,22 +124,24 @@ export class OverviewApp extends React.PureComponent<Props, State> {
     }
 
     const metrics = uniq(HISTORY_METRICS_LIST.concat(graphMetrics));
-    return getAllTimeMachineData(component.key, metrics, { branch: getBranchName(branch) }).then(
-      r => {
-        if (this.mounted) {
-          const history: History = {};
-          r.measures.forEach(measure => {
-            const measureHistory = measure.history.map(analysis => ({
-              date: parseDate(analysis.date),
-              value: analysis.value
-            }));
-            history[measure.metric] = measureHistory;
-          });
-          const historyStartDate = history[HISTORY_METRICS_LIST[0]][0].date;
-          this.setState({ history, historyStartDate });
-        }
+    return getAllTimeMachineData({
+      branch: getBranchName(branch),
+      component: component.key,
+      metrics: metrics.join()
+    }).then(r => {
+      if (this.mounted) {
+        const history: History = {};
+        r.measures.forEach(measure => {
+          const measureHistory = measure.history.map(analysis => ({
+            date: parseDate(analysis.date),
+            value: analysis.value
+          }));
+          history[measure.metric] = measureHistory;
+        });
+        const historyStartDate = history[HISTORY_METRICS_LIST[0]][0].date;
+        this.setState({ history, historyStartDate });
       }
-    );
+    });
   };
 
   getApplicationLeakPeriod = () =>
