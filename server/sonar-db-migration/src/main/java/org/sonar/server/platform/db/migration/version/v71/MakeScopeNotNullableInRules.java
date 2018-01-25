@@ -17,29 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.server.platform.db.migration.version.v71;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+public class MakeScopeNotNullableInRules extends DdlChange {
+  private static final String TABLE_NAME = "rules";
 
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 12
-        // Others
-        + 3);
+  public MakeScopeNotNullableInRules(Database db) {
+    super(db);
   }
 
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AlterColumnsBuilder(getDialect(), TABLE_NAME)
+      .updateColumn(newVarcharColumnDefBuilder()
+        .setColumnName("scope")
+        .setLimit(20)
+        .setIsNullable(false)
+        .build())
+      .build());
+  }
 }
