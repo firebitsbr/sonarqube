@@ -168,12 +168,12 @@ public class RuleDao implements Dao {
     });
   }
 
-  public void scrollIndexingRulesByKeys(DbSession dbSession, Collection<RuleKey> ruleKeys, Consumer<RuleForIndexingDto> consumer) {
+  public void scrollIndexingRulesByKeys(DbSession dbSession, Collection<Integer> ruleIds, Consumer<RuleForIndexingDto> consumer) {
     RuleMapper mapper = mapper(dbSession);
 
-    executeLargeInputsWithoutOutput(ruleKeys,
-      pageOfRuleKeys -> mapper
-        .selectIndexingRulesByKeys(pageOfRuleKeys)
+    executeLargeInputsWithoutOutput(ruleIds,
+      pageOfRuleIds -> mapper
+        .selectIndexingRulesByIds(pageOfRuleIds)
         .forEach(consumer));
   }
 

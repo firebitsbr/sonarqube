@@ -166,9 +166,9 @@ public class RuleIndex {
   }
 
   /**
-   * Return all keys matching the search query, without pagination nor facets
+   * Return all rule ids matching the search query, without pagination nor facets
    */
-  public Iterator<RuleKey> searchAll(RuleQuery query) {
+  public Iterator<Integer> searchAll(RuleQuery query) {
     SearchRequestBuilder esSearch = client
       .prepareSearch(INDEX_TYPE_RULE)
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
@@ -184,7 +184,7 @@ public class RuleIndex {
 
     esSearch.setQuery(boolQuery().must(qb).filter(fb));
     SearchResponse response = esSearch.get();
-    return scrollIds(client, response, RuleKey::parse);
+    return scrollIds(client, response, Integer::parseInt);
   }
 
   /* Build main query (search based) */

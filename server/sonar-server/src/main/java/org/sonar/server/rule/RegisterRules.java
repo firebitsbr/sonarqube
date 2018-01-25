@@ -98,7 +98,7 @@ public class RegisterRules implements Startable {
     Profiler profiler = Profiler.create(LOG).startInfo("Register rules");
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<RuleKey, RuleDefinitionDto> allRules = loadRules(dbSession);
-      List<RuleKey> keysToIndex = new ArrayList<>();
+      List<Integer> ruleIdsToIndex = new ArrayList<>();
 
       RulesDefinition.Context context = defLoader.load();
       boolean orgsEnabled = organizationFlags.isEnabled(dbSession);
@@ -116,10 +116,9 @@ public class RegisterRules implements Startable {
               }
               continue;
             }
-            boolean relevantForIndex = registerRule(ruleDef, allRules, dbSession);
-            if (relevantForIndex) {
-              keysToIndex.add(ruleKey);
-            }
+
+            registerRule(ruleDef, allRules, dbSession)
+              .ifPresent(ruleIdsToIndex::add);
           }
           dbSession.commit();
         }
@@ -127,10 +126,10 @@ public class RegisterRules implements Startable {
       List<RuleDefinitionDto> removedRules = processRemainingDbRules(allRules.values(), dbSession);
       List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(dbSession, removedRules, context);
       dbSession.commit();
-      keysToIndex.addAll(removedRules.stream().map(RuleDefinitionDto::getKey).collect(Collectors.toList()));
+      ruleIdsToIndex.addAll(removedRules.stream().map(RuleDefinitionDto::getId).collect(Collectors.toList()));
 
       persistRepositories(dbSession, context.repositories());
-      ruleIndexer.commitAndIndex(dbSession, keysToIndex);
+      ruleIndexer.commitAndIndex(dbSession, ruleIdsToIndex);
       activeRuleIndexer.commitAndIndex(dbSession, changes);
       profiler.stopDebug();
 
@@ -153,7 +152,10 @@ public class RegisterRules implements Startable {
     // nothing
   }
 
-  private boolean registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDefinitionDto> allRules, DbSession session) {
+  /**
+   * @return the id of the rule if it's just been created or if it's been updated.
+   */
+  private Optional<Integer> registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDefinitionDto> allRules, DbSession session) {
     RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
 
     RuleDefinitionDto existingRule = allRules.remove(ruleKey);
@@ -185,7 +187,10 @@ public class RegisterRules implements Startable {
     }
 
     mergeParams(ruleDef, rule, session);
-    return newRule || executeUpdate;
+    if(newRule || executeUpdate) {
+      return Optional.of(rule.getId());
+    }
+    return Optional.empty();
   }
 
   private Map<RuleKey, RuleDefinitionDto> loadRules(DbSession session) {

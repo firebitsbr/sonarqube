@@ -154,7 +154,7 @@ public class ChangeParentActionTest {
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent1);
-    ruleIndexer.commitAndIndex(dbSession, rule1.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getId());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
@@ -184,7 +184,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
-    ruleIndexer.commitAndIndex(dbSession, asList(rule1.getKey(), rule2.getKey()));
+    ruleIndexer.commitAndIndex(dbSession, asList(rule1.getId(), rule2.getId()));
     activeRuleIndexer.indexOnStartup(emptySet());
 
     // Set parent 1
@@ -212,7 +212,7 @@ public class ChangeParentActionTest {
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
-    ruleIndexer.commitAndIndex(dbSession, rule1.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getId());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     // Set parent
@@ -240,7 +240,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
-    ruleIndexer.commitAndIndex(dbSession, rule1.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getId());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
@@ -299,7 +299,7 @@ public class ChangeParentActionTest {
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
-    ruleIndexer.commitAndIndex(dbSession, rule1.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getId());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
@@ -329,7 +329,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
-    ruleIndexer.commitAndIndex(dbSession, asList(rule1.getKey(), rule2.getKey()));
+    ruleIndexer.commitAndIndex(dbSession, asList(rule1.getId(), rule2.getId()));
     activeRuleIndexer.indexOnStartup(emptySet());
     // Set parent 1
     ruleActivator.setParentAndCommit(dbSession, child, parent1);

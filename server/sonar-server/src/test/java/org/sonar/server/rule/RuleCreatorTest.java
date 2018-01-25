@@ -475,7 +475,7 @@ public class RuleCreatorTest {
     dbTester.rules().insert(templateRule.getDefinition());
     dbTester.rules().insertOrUpdateMetadata(templateRule.getMetadata().setRuleId(templateRule.getId()));
     dbTester.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getDefinition().getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getDefinition().getId());
     return templateRule;
   }
 
@@ -493,7 +493,7 @@ public class RuleCreatorTest {
     dbTester.rules().insert(templateRule);
     dbTester.rules().insertRuleParam(templateRule,
       param -> param.setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getId());
     return templateRule;
   }
 

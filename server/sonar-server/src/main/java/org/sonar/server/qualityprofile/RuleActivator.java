@@ -425,11 +425,11 @@ public class RuleActivator {
 
   public BulkChangeResult bulkActivateAndCommit(DbSession dbSession, RuleQuery ruleQuery, QProfileDto profile, @Nullable String severity) {
     BulkChangeResult result = new BulkChangeResult();
-    Iterator<RuleKey> rules = ruleIndex.searchAll(ruleQuery);
+    Iterator<Integer> rules = ruleIndex.searchAll(ruleQuery);
     while (rules.hasNext()) {
-      RuleKey ruleKey = rules.next();
+      int ruleId = rules.next();
       try {
-        RuleActivation activation = RuleActivation.create(ruleKey, severity, null);
+        RuleActivation activation = RuleActivation.create(ruleId, severity, null);
         List<ActiveRuleChange> changes = activate(dbSession, activation, profile);
         result.addChanges(changes);
         if (!changes.isEmpty()) {

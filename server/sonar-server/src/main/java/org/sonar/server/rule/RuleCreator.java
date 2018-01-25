@@ -80,16 +80,16 @@ public class RuleCreator {
     checkArgument(templateRule.getStatus() != RuleStatus.REMOVED, "The template key doesn't exist: %s", templateKey.toString());
     validateCustomRule(newRule, dbSession, templateKey);
 
-    RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
 
-    Optional<RuleDefinitionDto> definition = loadRule(customRuleKey, dbSession);
+    RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
+    Optional<RuleDefinitionDto> definition = loadRule(dbSession, templateRule.getId());
     if (definition.isPresent()) {
       updateExistingRule(definition.get(), newRule, dbSession);
     } else {
       createCustomRule(customRuleKey, newRule, templateRule, dbSession);
     }
 
-    ruleIndexer.commitAndIndex(dbSession, customRuleKey);
+    ruleIndexer.commitAndIndex(dbSession, templateRule.getId());
     return customRuleKey;
   }
 
@@ -151,8 +151,8 @@ public class RuleCreator {
     }
   }
 
-  private Optional<RuleDefinitionDto> loadRule(RuleKey ruleKey, DbSession dbSession) {
-    return dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey);
+  private Optional<RuleDefinitionDto> loadRule(DbSession dbSession, int ruleId) {
+    return dbClient.ruleDao().selectDefinitionById((long) ruleId, dbSession);
   }
 
   private RuleKey createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule.ws;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
@@ -927,7 +926,7 @@ public class SearchActionTest {
   @SafeVarargs
   private final RuleMetadataDto insertMetadata(OrganizationDto organization, RuleDefinitionDto rule, Consumer<RuleMetadataDto>... populaters) {
     RuleMetadataDto metadata = db.rules().insertOrUpdateMetadata(rule, organization, populaters);
-    ruleIndexer.commitAndIndex(db.getSession(), rule.getKey(), organization);
+    ruleIndexer.commitAndIndex(db.getSession(), rule.getId(), organization);
     return metadata;
   }
 

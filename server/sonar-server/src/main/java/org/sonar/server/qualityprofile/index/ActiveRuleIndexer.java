@@ -207,10 +207,11 @@ public class ActiveRuleIndexer implements ResilientIndexer {
   }
 
   private static IndexRequest newIndexRequest(IndexedActiveRuleDto dto) {
-    ActiveRuleDoc doc = new ActiveRuleDoc(dto.getId());
-    doc.setRuleProfileUuid(dto.getRuleProfileUuid());
-    doc.setSeverity(SeverityUtil.getSeverityFromOrdinal(dto.getSeverity()));
-    doc.setRuleKey(RuleKey.of(dto.getRepository(), dto.getKey()));
+    ActiveRuleDoc doc = new ActiveRuleDoc(dto.getId())
+      .setRuleId(dto.getRuleId())
+      .setRuleProfileUuid(dto.getRuleProfileUuid())
+      .setSeverity(SeverityUtil.getSeverityFromOrdinal(dto.getSeverity()))
+      .setRuleKey(RuleKey.of(dto.getRepository(), dto.getKey()));
     // all the fields must be present, even if value is null
     String inheritance = dto.getInheritance();
     doc.setInheritance(inheritance == null ? ActiveRule.Inheritance.NONE.name() : inheritance);
