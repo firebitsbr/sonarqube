@@ -52,7 +52,7 @@ public class UseRuleIdInQPChangesData extends DataChange {
     massUpdate.execute(((row, update) -> handle(row, update, ruleKeysById)));
   }
 
-  private boolean handle(Select.Row row, SqlStatement update, Map<String, Integer> ruleKeysById) throws SQLException {
+  private static boolean handle(Select.Row row, SqlStatement update, Map<String, Integer> ruleKeysById) throws SQLException {
     String key = row.getString(1);
     String data = row.getString(2);
 
