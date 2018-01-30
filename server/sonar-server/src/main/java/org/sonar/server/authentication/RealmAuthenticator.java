@@ -138,7 +138,7 @@ public class RealmAuthenticator implements Startable {
       Collection<String> groups = externalGroupsProvider.doGetGroups(context);
       userIdentityBuilder.setGroups(new HashSet<>(groups));
     }
-    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new ExternalIdentityProvider(), realmEventSource(method));
+    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new ExternalIdentityProvider(), realmEventSource(method), false);
   }
 
   private String getLogin(String userLogin) {

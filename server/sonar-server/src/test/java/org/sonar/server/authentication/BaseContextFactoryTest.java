@@ -84,7 +84,7 @@ public class BaseContextFactoryTest {
     UserDto userDto = dbClient.userDao().insert(dbSession, newUserDto());
     dbSession.commit();
     when(identityProvider.getName()).thenReturn("provIdeur Nameuh");
-    when(userIdentityAuthenticator.authenticate(USER_IDENTITY, identityProvider, AuthenticationEvent.Source.external(identityProvider))).thenReturn(userDto);
+    when(userIdentityAuthenticator.authenticate(USER_IDENTITY, identityProvider, AuthenticationEvent.Source.external(identityProvider), false)).thenReturn(userDto);
   }
 
   @Test
@@ -103,7 +103,7 @@ public class BaseContextFactoryTest {
     when(request.getSession()).thenReturn(session);
 
     context.authenticate(USER_IDENTITY);
-    verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider, AuthenticationEvent.Source.external(identityProvider));
+    verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider, AuthenticationEvent.Source.external(identityProvider), false);
     verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(request), eq(response));
     verify(threadLocalUserSession).set(any(UserSession.class));
   }

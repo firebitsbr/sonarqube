@@ -79,7 +79,7 @@ public class BaseContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
-      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider, Source.external(identityProvider));
+      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider, Source.external(identityProvider), false);
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(userSessionFactory.create(userDto));
     }

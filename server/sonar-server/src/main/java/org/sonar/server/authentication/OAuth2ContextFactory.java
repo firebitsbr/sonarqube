@@ -124,7 +124,8 @@ public class OAuth2ContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
-      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider, AuthenticationEvent.Source.oauth2(identityProvider));
+      Boolean allowEmailShift = oAuthParameters.getAllowEmailShift(request).orElse(false);
+      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider, AuthenticationEvent.Source.oauth2(identityProvider), allowEmailShift);
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(userSessionFactory.create(userDto));
     }

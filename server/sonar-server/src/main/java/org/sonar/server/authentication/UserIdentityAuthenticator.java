@@ -70,23 +70,23 @@ public class UserIdentityAuthenticator {
     this.defaultGroupFinder = defaultGroupFinder;
   }
 
-  public UserDto authenticate(UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source) {
-    return register(user, provider, source);
+  public UserDto authenticate(UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source, boolean allowEmailShift) {
+    return register(user, provider, source, allowEmailShift);
   }
 
-  private UserDto register(UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source) {
+  private UserDto register(UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source, boolean allowEmailShift) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String userLogin = user.getLogin();
       UserDto userDto = dbClient.userDao().selectByLogin(dbSession, userLogin);
       if (userDto != null && userDto.isActive()) {
-        registerExistingUser(dbSession, userDto, user, provider);
+        registerExistingUser(dbSession, userDto, user, provider, allowEmailShift);
         return userDto;
       }
-      return registerNewUser(dbSession, user, provider, source);
+      return registerNewUser(dbSession, user, provider, source, allowEmailShift);
     }
   }
 
-  private UserDto registerNewUser(DbSession dbSession, UserIdentity identity, IdentityProvider provider, AuthenticationEvent.Source source) {
+  private UserDto registerNewUser(DbSession dbSession, UserIdentity identity, IdentityProvider provider, AuthenticationEvent.Source source, boolean allowEmailShift) {
     if (!provider.allowsUsersToSignUp()) {
       throw AuthenticationException.newBuilder()
         .setSource(source)
@@ -95,29 +95,38 @@ public class UserIdentityAuthenticator {
         .setPublicMessage(format("'%s' users are not allowed to sign up", provider.getKey()))
         .build();
     }
-
-    String email = identity.getEmail();
-    if (email != null) {
-      UserDto existingUser = dbClient.userDao().selectByEmail(dbSession, email);
-      if (existingUser != null) {
-        throw new EmailAlreadyExistException(email, existingUser, identity);
-      }
-    }
-
-    String userLogin = identity.getLogin();
+    validateEmail(dbSession, identity, allowEmailShift);
     return userUpdater.createAndCommit(dbSession, NewUser.builder()
-      .setLogin(userLogin)
+      .setLogin(identity.getLogin())
       .setEmail(identity.getEmail())
       .setName(identity.getName())
       .setExternalIdentity(new ExternalIdentity(provider.getKey(), identity.getProviderLogin()))
       .build(), u -> syncGroups(dbSession, identity, u));
   }
 
-  private void registerExistingUser(DbSession dbSession, UserDto userDto, UserIdentity identity, IdentityProvider provider) {
+  private void validateEmail(DbSession dbSession, UserIdentity identity, boolean allowEmailShift) {
+    String email = identity.getEmail();
+    if (email == null) {
+      return;
+    }
+    UserDto existingUser = dbClient.userDao().selectByEmail(dbSession, email);
+    if (existingUser == null || existingUser.getLogin().equals(identity.getLogin())) {
+      return;
+    }
+    if (allowEmailShift) {
+      existingUser.setEmail(null);
+      dbClient.userDao().update(dbSession, existingUser);
+    } else {
+      throw new EmailAlreadyExistException(email, existingUser, identity);
+    }
+  }
+
+  private void registerExistingUser(DbSession dbSession, UserDto userDto, UserIdentity identity, IdentityProvider provider, boolean allowEmailShift) {
     UpdateUser update = UpdateUser.create(userDto.getLogin())
       .setEmail(identity.getEmail())
       .setName(identity.getName())
       .setExternalIdentity(new ExternalIdentity(provider.getKey(), identity.getProviderLogin()));
+    validateEmail(dbSession, identity, allowEmailShift);
     userUpdater.updateAndCommit(dbSession, update, u -> syncGroups(dbSession, identity, u));
   }
 
