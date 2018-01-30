@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import { PullRequest, Branch, BranchType } from '../../../app/types';
 
 interface Props {
   location: {
@@ -26,6 +27,7 @@ interface Props {
       branch?: string;
       id: string;
       line?: string;
+      pullRequest?: string;
     };
   };
 }
@@ -45,15 +47,25 @@ export default class App extends React.PureComponent<Props> {
   };
 
   render() {
-    const { branch, id, line } = this.props.location.query;
+    const { branch, id, line, pullRequest } = this.props.location.query;
 
     const finalLine = line != null ? Number(line) : null;
+
+    // TODO find a way to avoid creating this fakeBranchLike
+    // probably the best way would be to drop this page completely
+    // and redirect to the Code page
+    let fakeBranchLike: Branch | PullRequest | undefined = undefined;
+    if (branch) {
+      fakeBranchLike = { isMain: false, name: branch, type: BranchType.SHORT };
+    } else if (pullRequest) {
+      fakeBranchLike = { base: '', branch: '', id: pullRequest, name: '' };
+    }
 
     return (
       <div className="page page-limited">
         <SourceViewer
           aroundLine={finalLine}
-          branch={branch}
+          branchLike={fakeBranchLike}
           component={id}
           highlightedLine={finalLine}
           onLoaded={this.scrollToLine}

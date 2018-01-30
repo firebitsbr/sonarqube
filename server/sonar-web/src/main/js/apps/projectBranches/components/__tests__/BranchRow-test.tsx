@@ -23,7 +23,7 @@ import BranchRow from '../BranchRow';
 import { MainBranch, ShortLivingBranch, BranchType } from '../../../../app/types';
 import { click } from '../../../../helpers/testUtils';
 
-const mainBranch: MainBranch = { isMain: true, name: 'master' };
+const mainBranch: MainBranch = { isMain: true, name: 'master', type: BranchType.LONG };
 
 const shortBranch: ShortLivingBranch = {
   analysisDate: '2017-09-27T00:05:19+0000',
@@ -60,7 +60,7 @@ it('deletes short-living branch', () => {
 });
 
 function shallowRender(branch: MainBranch | ShortLivingBranch, onChange: () => void = jest.fn()) {
-  const wrapper = shallow(<BranchRow branch={branch} component="foo" onChange={onChange} />);
+  const wrapper = shallow(<BranchRow branchLike={branch} component="foo" onChange={onChange} />);
   (wrapper.instance() as any).mounted = true;
   return wrapper;
 }

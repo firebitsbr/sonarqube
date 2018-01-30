@@ -22,14 +22,14 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import BranchRow from './BranchRow';
 import LongBranchesPattern from './LongBranchesPattern';
-import { Branch } from '../../../app/types';
-import { sortBranchesAsTree } from '../../../helpers/branches';
+import { BranchLike } from '../../../app/types';
+import { sortBranchesAsTree, getBranchLikeKey } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { getValues } from '../../../api/settings';
 import { formatMeasure } from '../../../helpers/measures';
 
 interface Props {
-  branches: Branch[];
+  branchLikes: BranchLike[];
   canAdmin?: boolean;
   component: { key: string };
   onBranchesChange: () => void;
@@ -97,7 +97,7 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { branches, component, onBranchesChange } = this.props;
+    const { branchLikes, component, onBranchesChange } = this.props;
 
     if (this.state.loading) {
       return (
@@ -132,11 +132,11 @@ export default class App extends React.PureComponent<Props, State> {
               </tr>
             </thead>
             <tbody>
-              {sortBranchesAsTree(branches).map(branch => (
+              {sortBranchesAsTree(branchLikes).map(branchLike => (
                 <BranchRow
-                  branch={branch}
+                  branchLike={branchLike}
                   component={component.key}
-                  key={branch.name}
+                  key={getBranchLikeKey(branchLike)}
                   onChange={onBranchesChange}
                 />
               ))}

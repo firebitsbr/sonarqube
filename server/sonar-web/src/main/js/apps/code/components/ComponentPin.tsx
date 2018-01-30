@@ -22,16 +22,17 @@ import Workspace from '../../../components/workspace/main';
 import PinIcon from '../../../components/shared/pin-icon';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../types';
+import { BranchLike } from '../../../app/types';
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   component: Component;
 }
 
-export default function ComponentPin({ branch, component }: Props) {
+export default function ComponentPin({ branchLike, component }: Props) {
   const handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    Workspace.openComponent({ branch, key: component.key });
+    Workspace.openComponent({ branchLike, key: component.key });
   };
 
   return (

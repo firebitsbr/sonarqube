@@ -35,9 +35,14 @@ it('renders list', () => {
   expect(
     shallow(
       <ComponentNavBranchesMenu
-        branches={[mainBranch(), shortBranch('foo'), longBranch('bar'), shortBranch('baz', true)]}
+        branchLikes={[
+          mainBranch(),
+          shortBranch('foo'),
+          longBranch('bar'),
+          shortBranch('baz', true)
+        ]}
         component={component}
-        currentBranch={mainBranch()}
+        currentBranchLike={mainBranch()}
         onClose={jest.fn()}
       />
     )
@@ -47,9 +52,9 @@ it('renders list', () => {
 it('searches', () => {
   const wrapper = shallow(
     <ComponentNavBranchesMenu
-      branches={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
+      branchLikes={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
       component={component}
-      currentBranch={mainBranch()}
+      currentBranchLike={mainBranch()}
       onClose={jest.fn()}
     />
   );
@@ -60,25 +65,25 @@ it('searches', () => {
 it('selects next & previous', () => {
   const wrapper = shallow(
     <ComponentNavBranchesMenu
-      branches={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
+      branchLikes={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
       component={component}
-      currentBranch={mainBranch()}
+      currentBranchLike={mainBranch()}
       onClose={jest.fn()}
     />
   );
   elementKeydown(wrapper.find('SearchBox'), 40);
   wrapper.update();
-  expect(wrapper.state().selected).toBe('foo');
+  expect(wrapper.state().selected).toEqual(shortBranch('foo'));
   elementKeydown(wrapper.find('SearchBox'), 40);
   wrapper.update();
-  expect(wrapper.state().selected).toBe('foobar');
+  expect(wrapper.state().selected).toEqual(shortBranch('foobar'));
   elementKeydown(wrapper.find('SearchBox'), 38);
   wrapper.update();
-  expect(wrapper.state().selected).toBe('foo');
+  expect(wrapper.state().selected).toEqual(shortBranch('foo'));
 });
 
 function mainBranch(): MainBranch {
-  return { isMain: true, name: 'master' };
+  return { isMain: true, name: 'master', type: BranchType.LONG };
 }
 
 function shortBranch(name: string, isOrphan?: true): ShortLivingBranch {

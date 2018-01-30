@@ -19,13 +19,14 @@ exports[`renders list 1`] = `
     className="menu menu-vertically-limited"
   >
     <React.Fragment
-      key="master"
+      key="branch-master"
     >
       <ComponentNavBranchesMenuItem
-        branch={
+        branchLike={
           Object {
             "isMain": true,
             "name": "master",
+            "type": "LONG",
           }
         }
         component={
@@ -39,7 +40,7 @@ exports[`renders list 1`] = `
       />
     </React.Fragment>
     <React.Fragment
-      key="baz"
+      key="branch-baz"
     >
       <li
         className="divider"
@@ -58,7 +59,7 @@ exports[`renders list 1`] = `
         </Tooltip>
       </li>
       <ComponentNavBranchesMenuItem
-        branch={
+        branchLike={
           Object {
             "isMain": false,
             "isOrphan": true,
@@ -83,10 +84,10 @@ exports[`renders list 1`] = `
       />
     </React.Fragment>
     <React.Fragment
-      key="foo"
+      key="branch-foo"
     >
       <ComponentNavBranchesMenuItem
-        branch={
+        branchLike={
           Object {
             "isMain": false,
             "isOrphan": undefined,
@@ -111,13 +112,13 @@ exports[`renders list 1`] = `
       />
     </React.Fragment>
     <React.Fragment
-      key="bar"
+      key="branch-bar"
     >
       <li
         className="divider"
       />
       <ComponentNavBranchesMenuItem
-        branch={
+        branchLike={
           Object {
             "isMain": false,
             "name": "bar",
@@ -135,7 +136,7 @@ exports[`renders list 1`] = `
       />
     </React.Fragment>
     <React.Fragment
-      key="baz"
+      key="branch-baz"
     >
       <li
         className="divider"
@@ -154,7 +155,7 @@ exports[`renders list 1`] = `
         </Tooltip>
       </li>
       <ComponentNavBranchesMenuItem
-        branch={
+        branchLike={
           Object {
             "isMain": false,
             "isOrphan": true,
@@ -201,10 +202,10 @@ exports[`searches 1`] = `
     className="menu menu-vertically-limited"
   >
     <React.Fragment
-      key="foobar"
+      key="branch-foobar"
     >
       <ComponentNavBranchesMenuItem
-        branch={
+        branchLike={
           Object {
             "isMain": false,
             "isOrphan": undefined,
@@ -229,13 +230,13 @@ exports[`searches 1`] = `
       />
     </React.Fragment>
     <React.Fragment
-      key="bar"
+      key="branch-bar"
     >
       <li
         className="divider"
       />
       <ComponentNavBranchesMenuItem
-        branch={
+        branchLike={
           Object {
             "isMain": false,
             "name": "bar",

@@ -22,20 +22,19 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
-import { Component as CodeComponent } from '../types';
-import SourceViewer from './../../../components/SourceViewer/SourceViewer';
 import Search from './Search';
-import ListFooter from '../../../components/controls/ListFooter';
-import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '../utils';
-import { parseError } from '../../../helpers/request';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
-import { getBranchName } from '../../../helpers/branches';
+import { Component as CodeComponent } from '../types';
+import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '../utils';
+import { Component, BranchLike } from '../../../app/types';
+import SourceViewer from './../../../components/SourceViewer/SourceViewer';
+import ListFooter from '../../../components/controls/ListFooter';
+import { parseError } from '../../../helpers/request';
 import { translate } from '../../../helpers/l10n';
 import '../code.css';
-import { Component, Branch } from '../../../app/types';
 
 interface Props {
-  branch?: Branch;
+  branchLike?: BranchLike;
   component: Component;
   location: { query: { [x: string]: string } };
 }
@@ -67,7 +66,10 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.component !== this.props.component || prevProps.branch !== this.props.branch) {
+    if (
+      prevProps.component !== this.props.component ||
+      prevProps.branchLike !== this.props.branchLike
+    ) {
       this.handleComponentChange();
     } else if (prevProps.location !== this.props.location) {
       this.handleUpdate();
@@ -80,14 +82,14 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   handleComponentChange() {
-    const { branch, component } = this.props;
+    const { branchLike, component } = this.props;
 
     // we already know component's breadcrumbs,
     addComponentBreadcrumbs(component.key, component.breadcrumbs);
 
     this.setState({ loading: true });
     const isPortfolio = ['VW', 'SVW'].includes(component.qualifier);
-    retrieveComponentChildren(component.key, isPortfolio, getBranchName(branch))
+    retrieveComponentChildren(component.key, isPortfolio, branchLike)
       .then(() => {
         addComponent(component);
         if (this.mounted) {
@@ -106,7 +108,7 @@ export default class App extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
 
     const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
-    retrieveComponent(componentKey, isPortfolio, getBranchName(this.props.branch))
+    retrieveComponent(componentKey, isPortfolio, this.props.branchLike)
       .then(r => {
         if (this.mounted) {
           if (['FIL', 'UTS'].includes(r.component.qualifier)) {
@@ -152,7 +154,7 @@ export default class App extends React.PureComponent<Props, State> {
       return;
     }
     const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
-    loadMoreChildren(baseComponent.key, page + 1, isPortfolio, getBranchName(this.props.branch))
+    loadMoreChildren(baseComponent.key, page + 1, isPortfolio, this.props.branchLike)
       .then(r => {
         if (this.mounted) {
           this.setState({
@@ -177,7 +179,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branch, component, location } = this.props;
+    const { branchLike, component, location } = this.props;
     const {
       loading,
       error,
@@ -187,8 +189,6 @@ export default class App extends React.PureComponent<Props, State> {
       total,
       sourceViewer
     } = this.state;
-    const branchName = getBranchName(branch);
-
     const shouldShowBreadcrumbs = breadcrumbs.length > 1;
 
     const componentsClassName = classNames('boxed-group', 'boxed-group-inner', 'spacer-top', {
@@ -202,7 +202,7 @@ export default class App extends React.PureComponent<Props, State> {
         {error && <div className="alert alert-danger">{error}</div>}
 
         <Search
-          branch={branchName}
+          branchLike={branchLike}
           component={component}
           location={location}
           onError={this.handleError}
@@ -210,7 +210,11 @@ export default class App extends React.PureComponent<Props, State> {
 
         <div className="code-components">
           {shouldShowBreadcrumbs && (
-            <Breadcrumbs branch={branchName} breadcrumbs={breadcrumbs} rootComponent={component} />
+            <Breadcrumbs
+              branchLike={branchLike}
+              breadcrumbs={breadcrumbs}
+              rootComponent={component}
+            />
           )}
 
           {sourceViewer === undefined &&
@@ -218,7 +222,7 @@ export default class App extends React.PureComponent<Props, State> {
               <div className={componentsClassName}>
                 <Components
                   baseComponent={baseComponent}
-                  branch={branchName}
+                  branchLike={branchLike}
                   components={components}
                   rootComponent={component}
                 />
@@ -232,7 +236,7 @@ export default class App extends React.PureComponent<Props, State> {
 
           {sourceViewer !== undefined && (
             <div className="spacer-top">
-              <SourceViewer branch={branchName} component={sourceViewer.key} />
+              <SourceViewer branchLike={branchLike} component={sourceViewer.key} />
             </div>
           )}
         </div>

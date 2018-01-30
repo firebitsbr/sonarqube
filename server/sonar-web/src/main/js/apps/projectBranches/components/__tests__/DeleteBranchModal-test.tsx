@@ -49,7 +49,7 @@ it('deletes branch', () => {
     wrapper.update();
     expect(wrapper.state().loading).toBe(false);
     expect(onDelete).toBeCalled();
-    expect(deleteBranch).toBeCalledWith('foo', 'feature');
+    expect(deleteBranch).toBeCalledWith({ branch: 'feature', project: 'foo' });
   });
 });
 
@@ -75,7 +75,7 @@ it('stops loading on WS error', () => {
     wrapper.update();
     expect(wrapper.state().loading).toBe(false);
     expect(onDelete).not.toBeCalled();
-    expect(deleteBranch).toBeCalledWith('foo', 'feature');
+    expect(deleteBranch).toBeCalledWith({ branch: 'feature', project: 'foo' });
   });
 });
 
@@ -87,7 +87,7 @@ function shallowRender(onDelete: () => void = jest.fn(), onClose: () => void = j
     type: BranchType.SHORT
   };
   const wrapper = shallow(
-    <DeleteBranchModal branch={branch} component="foo" onClose={onClose} onDelete={onDelete} />
+    <DeleteBranchModal branchLike={branch} component="foo" onClose={onClose} onDelete={onDelete} />
   );
   (wrapper.instance() as any).mounted = true;
   return wrapper;

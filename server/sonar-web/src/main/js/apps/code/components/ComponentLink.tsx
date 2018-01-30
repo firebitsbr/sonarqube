@@ -22,19 +22,20 @@ import { Link } from 'react-router';
 import { Component } from '../types';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import { translate } from '../../../helpers/l10n';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getBranchLikeUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../app/types';
 
 interface Props {
-  branch?: string;
+  branchLike?: BranchLike;
   component: Component;
 }
 
-export default function ComponentLink({ component, branch }: Props) {
+export default function ComponentLink({ component, branchLike }: Props) {
   return (
     <Link
       className="link-no-underline"
       title={translate('code.open_component_page')}
-      to={getProjectUrl(component.refKey || component.key, branch)}>
+      to={getBranchLikeUrl(component.refKey || component.key, branchLike)}>
       <LinkIcon />
     </Link>
   );

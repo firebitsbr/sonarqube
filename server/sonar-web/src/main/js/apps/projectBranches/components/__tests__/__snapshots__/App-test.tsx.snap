@@ -71,18 +71,19 @@ exports[`renders sorted list of branches 1`] = `
       </thead>
       <tbody>
         <BranchRow
-          branch={
+          branchLike={
             Object {
               "isMain": true,
               "name": "master",
+              "type": "LONG",
             }
           }
           component="foo"
-          key="master"
+          key="branch-master"
           onChange={[MockFunction]}
         />
         <BranchRow
-          branch={
+          branchLike={
             Object {
               "isMain": false,
               "mergeBranch": "master",
@@ -91,11 +92,11 @@ exports[`renders sorted list of branches 1`] = `
             }
           }
           component="foo"
-          key="branch-1.0"
+          key="branch-branch-1.0"
           onChange={[MockFunction]}
         />
         <BranchRow
-          branch={
+          branchLike={
             Object {
               "isMain": false,
               "name": "branch-1.0",
@@ -103,7 +104,7 @@ exports[`renders sorted list of branches 1`] = `
             }
           }
           component="foo"
-          key="branch-1.0"
+          key="branch-branch-1.0"
           onChange={[MockFunction]}
         />
       </tbody>

@@ -42,7 +42,7 @@ exports[`renders status of short-living branch 1`] = `
     className="navbar-context-meta-secondary"
   >
     <BranchStatus
-      branch={
+      branchLike={
         Object {
           "isMain": false,
           "mergeBranch": "master",

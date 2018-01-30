@@ -57,7 +57,7 @@ describe('#sortBranchesAsTree', () => {
 });
 
 function mainBranch(): MainBranch {
-  return { isMain: true, name: 'master' };
+  return { isMain: true, name: 'master', type: BranchType.LONG };
 }
 
 function shortLivingBranch(name: string, mergeBranch: string): ShortLivingBranch {

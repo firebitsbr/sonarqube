@@ -32,10 +32,10 @@ const shortBranch: ShortLivingBranch = {
   type: BranchType.SHORT
 };
 
-const mainBranch: MainBranch = { isMain: true, name: 'master' };
+const mainBranch: MainBranch = { isMain: true, name: 'master', type: BranchType.LONG };
 
 it('renders main branch', () => {
-  expect(shallowRender({ branch: mainBranch })).toMatchSnapshot();
+  expect(shallowRender({ branchLike: mainBranch })).toMatchSnapshot();
 });
 
 it('renders short-living branch', () => {
@@ -43,13 +43,14 @@ it('renders short-living branch', () => {
 });
 
 it('renders short-living orhpan branch', () => {
-  expect(shallowRender({ branch: { ...shortBranch, isOrphan: true } })).toMatchSnapshot();
+  const orhpan: ShortLivingBranch = { ...shortBranch, isOrphan: true };
+  expect(shallowRender({ branchLike: orhpan })).toMatchSnapshot();
 });
 
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
   return shallow(
     <ComponentNavBranchesMenuItem
-      branch={shortBranch}
+      branchLike={shortBranch}
       component={component}
       onSelect={jest.fn()}
       selected={false}

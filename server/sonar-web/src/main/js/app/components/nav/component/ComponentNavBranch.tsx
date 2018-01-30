@@ -23,19 +23,23 @@ import * as PropTypes from 'prop-types';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
 import SingleBranchHelperPopup from './SingleBranchHelperPopup';
 import NoBranchSupportPopup from './NoBranchSupportPopup';
-import { Branch, Component } from '../../../types';
+import { BranchLike, Component } from '../../../types';
 import * as theme from '../../../theme';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
-import { isShortLivingBranch } from '../../../../helpers/branches';
+import {
+  isShortLivingBranch,
+  isSameBranchLike,
+  getBranchLikeDisplayName
+} from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import HelpIcon from '../../../../components/icons-components/HelpIcon';
 import BubblePopupHelper from '../../../../components/common/BubblePopupHelper';
 import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
-  branches: Branch[];
+  branchLikes: BranchLike[];
   component: Component;
-  currentBranch: Branch;
+  currentBranchLike: BranchLike;
   location?: any;
 }
 
@@ -69,7 +73,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   componentWillReceiveProps(nextProps: Props) {
     if (
       nextProps.component !== this.props.component ||
-      this.differentBranches(nextProps.currentBranch, this.props.currentBranch) ||
+      !isSameBranchLike(nextProps.currentBranchLike, this.props.currentBranchLike) ||
       nextProps.location !== this.props.location
     ) {
       this.setState({ dropdownOpen: false, singleBranchPopupOpen: false });
@@ -78,11 +82,6 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
 
   componentWillUnmount() {
     this.mounted = false;
-  }
-
-  differentBranches(a: Branch, b: Branch) {
-    // if main branch changes name, we should not close the dropdown
-    return a.isMain && b.isMain ? false : a.name !== b.name;
   }
 
   handleClick = (event: React.SyntheticEvent<HTMLElement>) => {
@@ -130,21 +129,21 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     const { configuration } = this.props.component;
     return this.state.dropdownOpen ? (
       <ComponentNavBranchesMenu
-        branches={this.props.branches}
+        branchLikes={this.props.branchLikes}
         canAdmin={configuration && configuration.showSettings}
         component={this.props.component}
-        currentBranch={this.props.currentBranch}
+        currentBranchLike={this.props.currentBranchLike}
         onClose={this.closeDropdown}
       />
     ) : null;
   };
 
   renderMergeBranch = () => {
-    const { currentBranch } = this.props;
-    if (!isShortLivingBranch(currentBranch)) {
+    const { currentBranchLike } = this.props;
+    if (!isShortLivingBranch(currentBranchLike)) {
       return null;
     }
-    return currentBranch.isOrphan ? (
+    return currentBranchLike.isOrphan ? (
       <span className="note big-spacer-left text-lowercase">
         {translate('branches.orphan_branch')}
         <Tooltip overlay={translate('branches.orphan_branches.tooltip')}>
@@ -153,7 +152,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
       </span>
     ) : (
       <span className="note big-spacer-left text-lowercase">
-        {translate('from')} <strong>{currentBranch.mergeBranch}</strong>
+        {translate('from')} <strong>{currentBranchLike.mergeBranch}</strong>
       </span>
     );
   };
@@ -187,27 +186,33 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   );
 
   render() {
-    const { branches, currentBranch } = this.props;
+    const { branchLikes, currentBranchLike } = this.props;
 
     if (this.context.onSonarCloud && !this.context.branchesEnabled) {
       return null;
     }
 
+    const displayName = getBranchLikeDisplayName(currentBranchLike);
+
     if (!this.context.branchesEnabled) {
       return (
         <div className="navbar-context-branches">
-          <BranchIcon branch={currentBranch} className="little-spacer-right" fill={theme.gray80} />
-          <span className="note">{currentBranch.name}</span>
+          <BranchIcon
+            branchLike={currentBranchLike}
+            className="little-spacer-right"
+            fill={theme.gray80}
+          />
+          <span className="note">{displayName}</span>
           {this.renderNoBranchSupportPopup()}
         </div>
       );
     }
 
-    if (branches.length < 2) {
+    if (branchLikes.length < 2) {
       return (
         <div className="navbar-context-branches">
-          <BranchIcon branch={currentBranch} className="little-spacer-right" />
-          <span className="note">{currentBranch.name}</span>
+          <BranchIcon branchLike={currentBranchLike} className="little-spacer-right" />
+          <span className="note">{displayName}</span>
           {this.renderSingleBranchPopup()}
         </div>
       );
@@ -219,9 +224,9 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
           open: this.state.dropdownOpen
         })}>
         <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
-          <BranchIcon branch={currentBranch} className="little-spacer-right" />
-          <Tooltip overlay={currentBranch.name} mouseEnterDelay={1}>
-            <span className="text-limited text-top">{currentBranch.name}</span>
+          <BranchIcon branchLike={currentBranchLike} className="little-spacer-right" />
+          <Tooltip overlay={displayName} mouseEnterDelay={1}>
+            <span className="text-limited text-top">{displayName}</span>
           </Tooltip>
           <i className="icon-dropdown little-spacer-left" />
         </a>

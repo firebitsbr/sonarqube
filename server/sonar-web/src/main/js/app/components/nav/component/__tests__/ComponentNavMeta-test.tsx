@@ -42,7 +42,11 @@ it('renders status of short-living branch', () => {
   };
   expect(
     shallow(
-      <ComponentNavMeta branch={branch} component={component} currentUser={{ isLoggedIn: false }} />
+      <ComponentNavMeta
+        branchLike={branch}
+        component={component}
+        currentUser={{ isLoggedIn: false }}
+      />
     )
   ).toMatchSnapshot();
 });
@@ -56,7 +60,11 @@ it('renders meta for long-living branch', () => {
   };
   expect(
     shallow(
-      <ComponentNavMeta branch={branch} component={component} currentUser={{ isLoggedIn: false }} />
+      <ComponentNavMeta
+        branchLike={branch}
+        component={component}
+        currentUser={{ isLoggedIn: false }}
+      />
     )
   ).toMatchSnapshot();
 });

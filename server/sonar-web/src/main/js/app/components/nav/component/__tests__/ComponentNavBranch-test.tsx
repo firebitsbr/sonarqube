@@ -29,17 +29,17 @@ import {
 } from '../../../../types';
 import { click } from '../../../../../helpers/testUtils';
 
+const mainBranch: MainBranch = { isMain: true, name: 'master', type: BranchType.LONG };
 const fooBranch: LongLivingBranch = { isMain: false, name: 'foo', type: BranchType.LONG };
 
 it('renders main branch', () => {
-  const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
   expect(
     shallow(
       <ComponentNavBranch
-        branches={[branch, fooBranch]}
+        branchLikes={[mainBranch, fooBranch]}
         component={component}
-        currentBranch={branch}
+        currentBranchLike={mainBranch}
       />,
       { context: { branchesEnabled: true } }
     )
@@ -58,9 +58,9 @@ it('renders short-living branch', () => {
   expect(
     shallow(
       <ComponentNavBranch
-        branches={[branch, fooBranch]}
+        branchLikes={[branch, fooBranch]}
         component={component}
-        currentBranch={branch}
+        currentBranchLike={branch}
       />,
       { context: { branchesEnabled: true } }
     )
@@ -68,13 +68,12 @@ it('renders short-living branch', () => {
 });
 
 it('opens menu', () => {
-  const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
   const wrapper = shallow(
     <ComponentNavBranch
-      branches={[branch, fooBranch]}
+      branchLikes={[mainBranch, fooBranch]}
       component={component}
-      currentBranch={branch}
+      currentBranchLike={mainBranch}
     />,
     { context: { branchesEnabled: true } }
   );
@@ -84,10 +83,13 @@ it('opens menu', () => {
 });
 
 it('renders single branch popup', () => {
-  const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
   const wrapper = shallow(
-    <ComponentNavBranch branches={[branch]} component={component} currentBranch={branch} />,
+    <ComponentNavBranch
+      branchLikes={[mainBranch]}
+      component={component}
+      currentBranchLike={mainBranch}
+    />,
     { context: { branchesEnabled: true } }
   );
   expect(wrapper).toMatchSnapshot();
@@ -97,13 +99,12 @@ it('renders single branch popup', () => {
 });
 
 it('renders no branch support popup', () => {
-  const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
   const wrapper = shallow(
     <ComponentNavBranch
-      branches={[branch, fooBranch]}
+      branchLikes={[mainBranch, fooBranch]}
       component={component}
-      currentBranch={branch}
+      currentBranchLike={mainBranch}
     />,
     { context: { branchesEnabled: false } }
   );
@@ -114,10 +115,13 @@ it('renders no branch support popup', () => {
 });
 
 it('renders nothing on SonarCloud without branch support', () => {
-  const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
   const wrapper = shallow(
-    <ComponentNavBranch branches={[branch]} component={component} currentBranch={branch} />,
+    <ComponentNavBranch
+      branchLikes={[mainBranch]}
+      component={component}
+      currentBranchLike={mainBranch}
+    />,
     { context: { branchesEnabled: false, onSonarCloud: true } }
   );
   expect(wrapper.type()).toBeNull();

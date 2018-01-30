@@ -21,28 +21,30 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import ComponentNavBranchesMenuItem from './ComponentNavBranchesMenuItem';
-import { Branch, Component } from '../../../types';
+import { BranchLike, Component } from '../../../types';
 import {
   sortBranchesAsTree,
   isLongLivingBranch,
-  isShortLivingBranch
+  isShortLivingBranch,
+  isSameBranchLike,
+  getBranchLikeKey
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
-import { getProjectBranchUrl } from '../../../../helpers/urls';
+import { getBranchLikeUrl } from '../../../../helpers/urls';
 import SearchBox from '../../../../components/controls/SearchBox';
 import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
-  branches: Branch[];
+  branchLikes: BranchLike[];
   canAdmin?: boolean;
   component: Component;
-  currentBranch: Branch;
+  currentBranchLike: BranchLike;
   onClose: () => void;
 }
 
 interface State {
   query: string;
-  selected: string | null;
+  selected: BranchLike | undefined;
 }
 
 export default class ComponentNavBranchesMenu extends React.PureComponent<Props, State> {
@@ -54,7 +56,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
 
   constructor(props: Props) {
     super(props);
-    this.state = { query: '', selected: null };
+    this.state = { query: '', selected: undefined };
   }
 
   componentDidMount() {
@@ -65,9 +67,9 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     window.removeEventListener('click', this.handleClickOutside);
   }
 
-  getFilteredBranches = () =>
-    sortBranchesAsTree(this.props.branches).filter(branch =>
-      branch.name.toLowerCase().includes(this.state.query.toLowerCase())
+  getFilteredBranchLikes = () =>
+    sortBranchesAsTree(this.props.branchLikes).filter(branchLike =>
+      branchLike.name.toLowerCase().includes(this.state.query.toLowerCase())
     );
 
   handleClickOutside = (event: Event) => {
@@ -76,7 +78,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     }
   };
 
-  handleSearchChange = (query: string) => this.setState({ query, selected: null });
+  handleSearchChange = (query: string) => this.setState({ query, selected: undefined });
 
   handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     switch (event.keyCode) {
@@ -91,38 +93,36 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       case 40:
         event.preventDefault();
         this.selectNext();
-        return;
     }
   };
 
   openSelected = () => {
     const selected = this.getSelected();
-    const branch = this.getFilteredBranches().find(branch => branch.name === selected);
-    if (branch) {
-      this.context.router.push(this.getProjectBranchUrl(branch));
+    if (selected) {
+      this.context.router.push(this.getProjectBranchUrl(selected));
     }
   };
 
   selectPrevious = () => {
     const selected = this.getSelected();
-    const branches = this.getFilteredBranches();
-    const index = branches.findIndex(branch => branch.name === selected);
+    const branchLikes = this.getFilteredBranchLikes();
+    const index = branchLikes.findIndex(b => isSameBranchLike(b, selected));
     if (index > 0) {
-      this.setState({ selected: branches[index - 1].name });
+      this.setState({ selected: branchLikes[index - 1] });
     }
   };
 
   selectNext = () => {
     const selected = this.getSelected();
-    const branches = this.getFilteredBranches();
-    const index = branches.findIndex(branch => branch.name === selected);
+    const branches = this.getFilteredBranchLikes();
+    const index = branches.findIndex(b => isSameBranchLike(b, selected));
     if (index >= 0 && index < branches.length - 1) {
-      this.setState({ selected: branches[index + 1].name });
+      this.setState({ selected: branches[index + 1] });
     }
   };
 
-  handleSelect = (branch: Branch) => {
-    this.setState({ selected: branch.name });
+  handleSelect = (branchLike: BranchLike) => {
+    this.setState({ selected: branchLike });
   };
 
   getSelected = () => {
@@ -130,21 +130,20 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       return this.state.selected;
     }
 
-    const branches = this.getFilteredBranches();
-    if (branches.find(b => b.name === this.props.currentBranch.name)) {
-      return this.props.currentBranch.name;
+    const branchLikes = this.getFilteredBranchLikes();
+    if (branchLikes.find(b => isSameBranchLike(b, this.props.currentBranchLike))) {
+      return this.props.currentBranchLike;
     }
 
-    if (branches.length > 0) {
-      return branches[0].name;
+    if (branchLikes.length > 0) {
+      return branchLikes[0];
     }
 
     return undefined;
   };
 
-  getProjectBranchUrl = (branch: Branch) => getProjectBranchUrl(this.props.component.key, branch);
-
-  isSelected = (branch: Branch) => branch.name === this.getSelected();
+  getProjectBranchUrl = (branchLike: BranchLike) =>
+    getBranchLikeUrl(this.props.component.key, branchLike);
 
   renderSearch = () => (
     <div className="menu-search">
@@ -159,21 +158,25 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
   );
 
   renderBranchesList = () => {
-    const branches = this.getFilteredBranches();
+    const branchLikes = this.getFilteredBranchLikes();
     const selected = this.getSelected();
 
-    if (branches.length === 0) {
+    if (branchLikes.length === 0) {
       return <div className="menu-message note">{translate('no_results')}</div>;
     }
 
-    const items = branches.map((branch, index) => {
-      const isOrphan = isShortLivingBranch(branch) && branch.isOrphan;
-      const previous = index > 0 ? branches[index - 1] : undefined;
+    const items = branchLikes.map((branchLike, index) => {
+      // TODO add subtitles for pull request and short-living branches
+
+      // TODO take orhpan PRs into consideration
+      const isOrphan = isShortLivingBranch(branchLike) && branchLike.isOrphan;
+      const previous = index > 0 ? branchLikes[index - 1] : undefined;
+      // TODO take orhpan PRs into consideration
       const isPreviousOrphan = isShortLivingBranch(previous) ? previous.isOrphan : false;
-      const showDivider = isLongLivingBranch(branch) || (isOrphan && !isPreviousOrphan);
+      const showDivider = isLongLivingBranch(branchLike) || (isOrphan && !isPreviousOrphan);
       const showOrphanHeader = isOrphan && !isPreviousOrphan;
       return (
-        <React.Fragment key={branch.name}>
+        <React.Fragment key={getBranchLikeKey(branchLike)}>
           {showDivider && <li className="divider" />}
           {showOrphanHeader && (
             <li className="dropdown-header">
@@ -184,11 +187,11 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
             </li>
           )}
           <ComponentNavBranchesMenuItem
-            branch={branch}
+            branchLike={branchLike}
             component={this.props.component}
-            key={branch.name}
+            key={branchLike.name}
             onSelect={this.handleSelect}
-            selected={branch.name === selected}
+            selected={isSameBranchLike(branchLike, selected)}
           />
         </React.Fragment>
       );

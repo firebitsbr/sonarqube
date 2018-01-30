@@ -23,7 +23,7 @@ jest.mock('../../../../api/branches', () => ({ renameBranch: jest.fn() }));
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
 import RenameBranchModal from '../RenameBranchModal';
-import { MainBranch } from '../../../../app/types';
+import { MainBranch, BranchType } from '../../../../app/types';
 import { submit, doAsync, click, change } from '../../../../helpers/testUtils';
 import { renameBranch } from '../../../../api/branches';
 
@@ -81,7 +81,7 @@ it('stops loading on WS error', () => {
 });
 
 function shallowRender(onRename: () => void = jest.fn(), onClose: () => void = jest.fn()) {
-  const branch: MainBranch = { isMain: true, name: 'master' };
+  const branch: MainBranch = { isMain: true, name: 'master', type: BranchType.LONG };
   const wrapper = shallow(
     <RenameBranchModal branch={branch} component="foo" onClose={onClose} onRename={onRename} />
   );

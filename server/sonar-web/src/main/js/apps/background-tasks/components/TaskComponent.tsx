@@ -23,7 +23,12 @@ import TaskType from './TaskType';
 import { Task } from '../types';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import Organization from '../../../components/shared/Organization';
-import { getProjectUrl } from '../../../helpers/urls';
+import {
+  getProjectUrl,
+  getShortLivingBranchUrl,
+  getLongLivingBranchUrl,
+  getPullRequestUrl
+} from '../../../helpers/urls';
 import ShortLivingBranchIcon from '../../../components/icons-components/ShortLivingBranchIcon';
 import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
 
@@ -56,7 +61,7 @@ export default function TaskComponent({ task }: Props) {
       {task.organization && <Organization organizationKey={task.organization} />}
 
       {task.componentName && (
-        <Link className="spacer-right" to={getProjectUrl(task.componentKey, task.branch)}>
+        <Link className="spacer-right" to={getTaskComponentUrl(task.componentKey, task)}>
           {task.componentName}
 
           {task.branch && (
@@ -71,4 +76,16 @@ export default function TaskComponent({ task }: Props) {
       <TaskType type={task.type} />
     </td>
   );
+}
+
+function getTaskComponentUrl(componentKey: string, task: Task) {
+  if (task.branch && task.branchType === 'SHORT') {
+    return getShortLivingBranchUrl(componentKey, task.branchType);
+  } else if (task.branchType && task.branchType === 'LONG') {
+    return getLongLivingBranchUrl(componentKey, task.branchType);
+  } else if (task.pullRequest) {
+    return getPullRequestUrl(componentKey, task.pullRequest);
+  } else {
+    return getProjectUrl(componentKey);
+  }
 }
